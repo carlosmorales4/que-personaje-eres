@@ -1,0 +1,117 @@
+import Foundation
+
+// Definición de la estructura del cuestionario
+struct Quiz {
+    var questions: [String]
+    var options: [[String]]
+    var characters: [String: String]  // Diccionario de personajes y descripciones
+}
+
+// Función para realizar el cuestionario
+func conductQuiz(quiz: Quiz) {
+    var userAnswers: [Int] = []
+    
+    print("¡Bienvenido al cuestionario para descubrir qué personaje eres!")
+    print("Por favor selecciona una opción para cada pregunta:\n")
+    
+    // Iterar sobre cada pregunta
+    for i in 0..<quiz.questions.count {
+        print("\(quiz.questions[i])")
+        
+        // Mostrar opciones disponibles
+        for (index, option) in quiz.options[i].enumerated() {
+            print("\(index + 1). \(option)")
+        }
+        
+        // Pedir respuesta al usuario y validarla
+        var selectedOption = 0
+        var isValidInput = false
+        
+        while !isValidInput {
+            print("Ingresa el número de tu respuesta (1-\(quiz.options[i].count)): ", terminator: "")
+            
+            if let input = readLine(), let choice = Int(input), (1...quiz.options[i].count).contains(choice) {
+                selectedOption = choice
+                isValidInput = true
+            } else {
+                print("Respuesta inválida. Por favor ingresa un número válido.")
+            }
+        }
+        
+        // Guardar la respuesta del usuario
+        userAnswers.append(selectedOption - 1)  // Restamos 1 para ajustarnos al índice del array
+        print("")
+    }
+    
+    // Mostrar resultado final
+    let resultCharacter = determineResult(answers: userAnswers, quiz: quiz)
+    if let characterDescription = quiz.characters[resultCharacter] {
+        print("¡Eres \(resultCharacter)!")
+        print("Descripción: \(characterDescription)")
+    } else {
+        print("No se encontró el personaje correspondiente.")
+    }
+}
+
+// Función para determinar el personaje basado en las respuestas del usuario
+func determineResult(answers: [Int], quiz: Quiz) -> String {
+    // Aquí podrías implementar la lógica para comparar las respuestas y determinar el personaje
+    // Por simplicidad, asumimos una lógica de comparación directa
+    let totalQuestions = quiz.questions.count
+    var characterScores: [String: Int] = [:]
+    
+    for (character, _) in quiz.characters {
+        characterScores[character] = 0
+    }
+    
+    for i in 0..<totalQuestions {
+        let userAnswerIndex = answers[i]
+        for (character, correctAnswers) in quiz.characters {
+            let correctAnswerIndex = Int(String(correctAnswers[correctAnswers.index(correctAnswers.startIndex, offsetBy: i)]))!
+            if userAnswerIndex == correctAnswerIndex {
+                characterScores[character]! += 1
+            }
+        }
+    }
+    
+    var maxScore = 0
+    var resultCharacter = ""
+    
+    for (character, score) in characterScores {
+        if score > maxScore {
+            maxScore = score
+            resultCharacter = character
+        }
+    }
+    
+    return resultCharacter
+}
+
+// Definir las preguntas, opciones y personajes con sus respuestas modelo
+let questions = [
+    "¿Qué color prefieres?",
+    "¿Cuál es tu comida favorita?",
+    "¿Qué actividad disfrutas más?",
+    "¿Cuál es tu estación del año preferida?",
+    "¿Cuál es tu película favorita?"
+]
+
+let options = [
+    ["Rojo", "Azul", "Verde", "Amarillo"],
+    ["Pizza", "Hamburguesa", "Sushi", "Ensalada"],
+    ["Leer", "Correr", "Ver películas", "Viajar"],
+    ["Primavera", "Verano", "Otoño", "Invierno"],
+    ["Comedia", "Acción", "Romance", "Ciencia ficción"]
+]
+
+let characters = [
+    "Personaje A": "Descripción del Personaje A",
+    "Personaje B": "Descripción del Personaje B",
+    "Personaje C": "Descripción del Personaje C",
+    "Personaje D": "Descripción del Personaje D"
+]
+
+let quiz = Quiz(questions: questions, options: options, characters: characters)
+
+// Iniciar el cuestionario
+conductQuiz(quiz: quiz)
